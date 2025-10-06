@@ -7,12 +7,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.List;
 
 public class MainWindow {
     private final MovieDatabase db;
     private JFrame frame;
-    private DefaultListModel<Movie> listModel;
+    private MyListModel<Movie> listModel;
 
     public MainWindow(MovieDatabase db) {
         this.db = db;
@@ -29,7 +28,7 @@ public class MainWindow {
         top.add(search, BorderLayout.CENTER);
         top.add(btn, BorderLayout.EAST);
 
-        listModel = new DefaultListModel<>();
+        listModel = new MyListModel<>();
         JList<Movie> results = new JList<>(listModel);
         JScrollPane sc = new JScrollPane(results);
 
@@ -47,8 +46,10 @@ public class MainWindow {
             listModel.clear();
             String q = search.getText().trim();
             if (q.isEmpty()) return;
-            List<Movie> r = db.search(q);
-            for (Movie m : r) listModel.addElement(m);
+            MovieDatabase.MyArrayList<Movie> r = db.search(q);
+            for (int i = 0; i < r.size(); i++) {
+                listModel.addElement(r.get(i));
+            }
         };
         btn.addActionListener(doSearch);
         search.addActionListener(doSearch);
@@ -81,5 +82,32 @@ public class MainWindow {
         MovieDatabase db = new MovieDatabase("src/movies.json");
         db.init();
         SwingUtilities.invokeLater(() -> new MainWindow(db).initAndShow());
+    }
+}
+
+class MyListModel<T> extends AbstractListModel<T> {
+    private MovieDatabase.MyArrayList<T> data = new MovieDatabase.MyArrayList<>();
+
+    public void addElement(T element) {
+        data.add(element);
+        fireIntervalAdded(this, data.size() - 1, data.size() - 1);
+    }
+
+    public void clear() {
+        int oldSize = data.size();
+        data = new MovieDatabase.MyArrayList<>();
+        if (oldSize > 0) {
+            fireIntervalRemoved(this, 0, oldSize - 1);
+        }
+    }
+
+    @Override
+    public int getSize() {
+        return data.size();
+    }
+
+    @Override
+    public T getElementAt(int index) {
+        return data.get(index);
     }
 }

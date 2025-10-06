@@ -1,15 +1,14 @@
 package model;
 
 import java.io.*;
-import java.util.*;
 
 public class MovieDatabase {
     private final String filePath;
-    private List<Movie> movies;
+    public MyArrayList<Movie> movies;
 
     public MovieDatabase(String filePath) {
         this.filePath = filePath;
-        this.movies = new ArrayList<>();
+        this.movies = new MyArrayList<>();
     }
 
     public void init() throws IOException {
@@ -20,7 +19,6 @@ public class MovieDatabase {
                 json.append(line.trim());
             }
         }
-
 
         String all = json.toString();
         all = all.substring(1, all.length() - 1);
@@ -63,16 +61,16 @@ public class MovieDatabase {
                     case "runtime": m.runtime = Integer.parseInt(value); break;
                 }
             } catch (Exception e) {
-
             }
         }
         return m;
     }
 
-    public List<Movie> search(String q) {
+    public MyArrayList<Movie> search(String q) {
         q = q.toLowerCase();
-        List<Movie> result = new ArrayList<>();
-        for (Movie m : movies) {
+        MyArrayList<Movie> result = new MyArrayList<>();
+        for (int i = 0; i < movies.size(); i++) {
+            Movie m = movies.get(i);
             if ((m.name != null && m.name.toLowerCase().contains(q)) ||
                     (m.genre != null && m.genre.toLowerCase().contains(q))) {
                 result.add(m);
@@ -81,4 +79,57 @@ public class MovieDatabase {
         }
         return result;
     }
+
+    public static class MyArrayList<T> {
+        private static final int DEFAULT_CAPACITY = 10;
+        private Object[] elements;
+        private int size;
+
+        public MyArrayList() {
+            this.elements = new Object[DEFAULT_CAPACITY];
+            this.size = 0;
+        }
+
+        public void add(T element) {
+            ensureCapacity(size + 1);
+            elements[size++] = element;
+        }
+
+        @SuppressWarnings("unchecked")
+        public T get(int index) {
+            if (index < 0 || index >= size) {
+                throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+            }
+            return (T) elements[index];
+        }
+
+        public int size() {
+            return size;
+        }
+
+        private void ensureCapacity(int minCapacity) {
+            if (minCapacity > elements.length) {
+                int newCapacity = elements.length * 2;
+                if (newCapacity < minCapacity) {
+                    newCapacity = minCapacity;
+                }
+                elements = manualArrayCopy(newCapacity);
+            }
+        }
+
+        private Object[] manualArrayCopy(int newCapacity) {
+            Object[] newElements = new Object[newCapacity];
+
+            for (int i = 0; i < size; i++) {
+                newElements[i] = elements[i];
+            }
+
+            return newElements;
+        }
+
+        public int getCapacity() {
+            return elements.length;
+        }
+    }
 }
+
