@@ -24,9 +24,16 @@ public class MainWindow {
 
         JPanel top = new JPanel(new BorderLayout(6, 6));
         JTextField search = new JTextField();
-        JButton btn = new JButton("Search");
+        JButton btn = new JButton("Поиск");
+
+        JButton sortBtn = new JButton("Каталог Фильмов по рейтингу");
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.add(btn);
+        buttonPanel.add(sortBtn);
+
         top.add(search, BorderLayout.CENTER);
-        top.add(btn, BorderLayout.EAST);
+        top.add(buttonPanel, BorderLayout.EAST);
 
         listModel = new MyListModel<>();
         JList<Movie> results = new JList<>(listModel);
@@ -53,6 +60,15 @@ public class MainWindow {
         };
         btn.addActionListener(doSearch);
         search.addActionListener(doSearch);
+
+
+        sortBtn.addActionListener(e -> {
+            listModel.clear();
+            MovieDatabase.MyArrayList<Movie> sortedMovies = db.getMoviesSortedByRating();
+            for (int i = 0; i < sortedMovies.size(); i++) {
+                listModel.addElement(sortedMovies.get(i));
+            }
+        });
 
         results.addListSelectionListener(ev -> {
             Movie m = results.getSelectedValue();

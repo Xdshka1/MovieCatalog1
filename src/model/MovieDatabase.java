@@ -72,7 +72,10 @@ public class MovieDatabase {
         for (int i = 0; i < movies.size(); i++) {
             Movie m = movies.get(i);
             if ((m.name != null && m.name.toLowerCase().contains(q)) ||
-                    (m.genre != null && m.genre.toLowerCase().contains(q))) {
+                    (m.genre != null && m.genre.toLowerCase().contains(q)) ||
+                    (m.company != null && m.company.toLowerCase().contains(q)) ||
+                    (m.director != null && m.director.toLowerCase().contains(q)))
+            {
                 result.add(m);
                 if (result.size() >= 200) break;
             }
@@ -80,9 +83,40 @@ public class MovieDatabase {
         return result;
     }
 
+    public MyArrayList<Movie> getMoviesSortedByRating() {
+        MyArrayList<Movie> sortedMovies = new MyArrayList<>();
+
+        for (int i = 0; i < movies.size(); i++) {
+            sortedMovies.add(movies.get(i));
+        }
+
+        bubbleSortByRating(sortedMovies);
+        return sortedMovies;
+    }
+    private void bubbleSortByRating(MyArrayList<Movie> list) {
+        int n = list.size();
+
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                Movie m1 = list.get(j);
+                Movie m2 = list.get(j + 1);
+
+                if (m1.score < m2.score) {
+
+                    Object temp = list.elements[j];
+                    list.elements[j] = list.elements[j + 1];
+                    list.elements[j + 1] = temp;
+                }
+            }
+        }
+    }
+
+
+
+
     public static class MyArrayList<T> {
         private static final int DEFAULT_CAPACITY = 10;
-        private Object[] elements;
+        Object[] elements;
         private int size;
 
         public MyArrayList() {
@@ -132,4 +166,5 @@ public class MovieDatabase {
         }
     }
 }
+
 
